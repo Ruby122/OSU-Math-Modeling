@@ -1,0 +1,57 @@
+% MATLAB code to organize 300 students into 100 teams such that the average of all 100 teams is high than the average of 
+% 100 teams that are randomly assigned
+function [d] = distance (X, i, j)
+%distance Evaluate distance between xi and xj 
+ %   X 
+ %       source data set 
+ %   i 
+ %       first index 
+ %   j 
+ %       second index 
+ 
+ % p(t) 
+ p_1 = X(i,1); 
+ p_2 = X(j,1); 
+ if abs(p_1 - p_2) < abs(30 - abs(p_1 - p_2))    
+   P_t = abs(p_1 - p_2); 
+ else    
+   P_t = abs(30 - abs(p_1 - p_2)); 
+ end 
+ P_t = 2*(15 - P_t); 
+ 
+ % m(t) := max{mi, mj} 
+ m_t = [X(i,2), X(j,2)]; 
+ M_t = max(m_t)*0.7 + min(m_t) *0.3;  
+ 
+ % m(t) := max{ci, cj} 
+ c_t = [X(i,3), X(j,3)]; 
+ C_t = max(c_t)*0.7 + min(m_t) *0.3; 
+ 
+ % mc(t) 
+ MC_t = C_t + M_t; 
+ if M_t >= 8 && C_t >= 8    
+  MC_t = 1.2 * MC_t; 
+ end
+ 
+ % w(t) 
+ w = [X(i,4), X(j,4), 10]; 
+ W_t = sum(w) / 3; 
+ flag = 1; 
+ if (i ~= j) && ~((abs(w(1,1) - w(1,2)) <= 2) || (w(1,1) >= 7.2759 && w(1,2) >= 7.2759))   % 7.2759 is the 95 percentile of W score    
+  flag = 0; 
+ end
+ 
+ if flag ~= 1    
+  if w(1,1) ~= 0 || w(1,2) ~= 0       
+    W_t = W_t/10 + (1-W_t/10)*(sum(w)-10)/2;    
+  else       
+    W_t = 0;    
+  end 
+ end
+ 
+ % k 
+ k = 0.4; 
+ 
+ % result 
+ d = P_t + k*W_t*MC_t;   
+ end
