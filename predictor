@@ -1,0 +1,72 @@
+ %score predictor for a team of three members
+ function [ predic ] = predictor( X, i, j ,k ) 
+ %predictor Evaluate a final score of a 3-member team 
+ %   X 
+ %       source data set 
+ %   i 
+ %       first team member number 
+ %   j 
+ %       second team member number 
+ %   k
+ %        third team member number 
+ % P(t) 
+ p_1 = X(i,1); 
+ p_2 = X(j,1); 
+ p_3 = X(k,1); 
+ P_t = 0; 
+ if abs(p_1 - p_2) < abs(30 - abs(p_1 - p_2))    
+  P_t = P_t + abs(p_1 - p_2); 
+ else    
+  P_t = P_t + abs(30 - abs(p_1 - p_2)); 
+  end 
+  if abs(p_2 - p_3) < abs(30 - abs(p_2 - p_3))    
+    P_t = P_t + abs(p_3 - p_2); 
+  else    
+    P_t = P_t + abs(30 - abs(p_2 - p_3)); 
+  end 
+  if abs(p_1 - p_3) < abs(30 - abs(p_1 - p_3))    
+    P_t = P_t + abs(p_1 - p_3); 
+  else    
+    P_t = P_t + abs(30 - abs(p_1 - p_3)); 
+  end 
+  P_t = 30 - P_t;  
+  
+  % M(t) := max{mi, mj, mk} * 0.7 + (sum{mi, mj, mk} - max{mi, mj, mk}) * 0.3 
+  m_t = [X(i,2), X(j,2), X(k,2)]; 
+  M_t = max(m_t) * 0.7 + 0.3*(sum(m_t)-max(m_t))*0.3; 
+  
+  % C(t) := max{ci, cj, ck} * 0.7 + (sum{ci, cj, ck} - max{ci, cj, ck}) * 0.3
+  c_t = [X(i,3), X(j,3), X(k,3)]; 
+  C_t = max(c_t) * 0.7 + 0.3 *(sum(m_t)-max(m_t))*0.3; 
+  
+  % MC(t) 
+  MC_t = C_t + M_t; 
+  if M_t >= 8 && C_t >= 8    
+    MC_t = 1.2 * MC_t; 
+  end
+  
+  % W(t) 
+  w = [X(i,4), X(j,4), X(k,4)]; 
+    W_t = sum(w) / 3;
+    flag = 1; 
+      for i = 1 : 3    
+        for j = 1 :3        
+          if (i ~= j) && ~((abs(w(1,i) - w(1,j)) <= 2) || (w(1,i) >= 7.2759 && w(1,j) >= 7.2759))   
+          % 7.2759 is the 95 percentile of W score            
+            flag = 0;        
+          end    
+        end 
+     end 
+ if flag ~= 1    
+  if max(w) ~= 0        
+    W_t = W_t/10 + (1-W_t/10)*(sum(w)-max(w))/2;    
+  else        
+    W_t = 0;    
+  end 
+ end  
+ 
+ % k 
+ k = 0.7;  
+ % result 
+ predic = P_t + k*W_t*MC_t;   
+ end
